@@ -7,18 +7,18 @@ public class Loan {
     String id;
     String firstName;
     String lastName;
-    Double value;
+    Double amount;
     String currency;
     LocalDateTime term;
 
     public Loan() {
     }
 
-    public Loan(String id, String firstName, String lastName, Double value, String currency, LocalDateTime term) {
+    public Loan(String id, String firstName, String lastName, Double amount, String currency, LocalDateTime term) {
         this.id = id;
         this.firstName = firstName;
         this.lastName = lastName;
-        this.value = value;
+        this.amount = amount;
         this.currency = currency;
         this.term = term;
     }
@@ -47,12 +47,12 @@ public class Loan {
         this.lastName = lastName;
     }
 
-    public Double getValue() {
-        return value;
+    public Double getAmount() {
+        return amount;
     }
 
-    public void setValue(Double value) {
-        this.value = value;
+    public void setAmount(Double amount) {
+        this.amount = amount;
     }
 
     public String getCurrency() {

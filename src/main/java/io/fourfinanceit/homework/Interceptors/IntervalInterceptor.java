@@ -22,7 +22,7 @@ public class IntervalInterceptor extends HandlerInterceptorAdapter {
     public boolean preHandle(HttpServletRequest servletRequest, HttpServletResponse servletResponse, Object handler) throws IOException, ServletException {
         if (clock.now().getHour() < 6 ){
 
-            System.out.println(clock.now().getHour());
+            System.out.println(" -------------------------- "+ clock.now().getHour());
              return false;
         }
 
