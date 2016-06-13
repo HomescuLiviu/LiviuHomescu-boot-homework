@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity3" xmlns:form="http://www.w3.org/1999/xhtml">
+<head>
+    <title>Loan Form</title>
+</head>
+<body>
+    <div align="center">
+        <form action="#" th:action="@{/loan}" th:object="${loanForm}" method="post">
+            <table>
+                <tr>
+                    <td>First Name:</td>
+                    <td><input type="text" th:field="*{firstName}" /></td>
+                    <td th:if="${#fields.hasErrors('firstName')}" th:errors="*{firstName}">First Name Error</td>
+                </tr>
+                <tr>
+                    <td>Last Name:</td>
+                    <td><input type="text" th:field="*{lastName}" /></td>
+                    <td th:if="${#fields.hasErrors('lastName')}" th:errors="*{lastName}">Last Name Error</td>
+                </tr>
+                <tr>
+                    <td>Amount:</td>
+                    <td><input type="text" th:field="*{amount}" /></td>
+                    <td th:if="${#fields.hasErrors('amount')}" th:errors="*{amount}">Amount Error</td>
+                </tr>
+                <tr>
+                    <td>Term (mm/dd/yyyy):</td>
+                    <td><input type="text" th:field="*{term}" /></td>
+                    <td th:if="${#fields.hasErrors('term')}" th:errors="*{amount}">Term Error</td>
+                </tr>
+
+
+                <tr>
+                    <td><button type="submit">Submit</button></td>
+                </tr>
+            </table>
+        </form>
+
+
+    </div>
+</body>
+</html>
