@@ -1,13 +1,17 @@
 package io.fourfinanceit.homework;
 
 import io.fourfinanceit.homework.data.entity.Loan;
+import io.fourfinanceit.homework.filters.IntervalInterceptor;
+import io.fourfinanceit.homework.time.Clock;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.annotation.Bean;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.web.servlet.config.annotation.InterceptorRegistration;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -39,5 +43,24 @@ public class Application implements CommandLineRunner {
 				(rs, rowNum) -> new Loan(rs.getString("id"), rs.getString("first_name"), rs.getString("last_name"), Double.valueOf(rs.getString("amount")), rs.getString("currency"), LocalDateTime.parse(rs.getString("term"),formatter) )
 		).forEach(customer -> log.info(customer.toString()));
 	}
+
+
+	@Bean
+	public IntervalInterceptor intervalInterceptor() {
+		return new IntervalInterceptor(clock());
+	}
+
+	@Bean
+	public InterceptorRegistration intervalInterceptorRegistration() {
+		InterceptorRegistration registration = new InterceptorRegistration(intervalInterceptor());
+		registration.addPathPatterns("/loan");
+		return registration;
+	}
+
+	@Bean
+	public Clock clock(){
+		return new Clock();
+	}
+
 
 }
