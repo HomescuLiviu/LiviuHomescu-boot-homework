@@ -1,7 +1,7 @@
 package io.fourfinanceit.homework;
 
+import io.fourfinanceit.homework.Interceptors.IntervalInterceptor;
 import io.fourfinanceit.homework.data.entity.Loan;
-import io.fourfinanceit.homework.filters.IntervalInterceptor;
 import io.fourfinanceit.homework.time.Clock;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

@@ -11,22 +11,18 @@
                 <tr>
                     <td>First Name:</td>
                     <td><input type="text" th:field="*{firstName}" /></td>
-                    <td th:if="${#fields.hasErrors('firstName')}" th:errors="*{firstName}">First Name Error</td>
                 </tr>
                 <tr>
                     <td>Last Name:</td>
                     <td><input type="text" th:field="*{lastName}" /></td>
-                    <td th:if="${#fields.hasErrors('lastName')}" th:errors="*{lastName}">Last Name Error</td>
                 </tr>
                 <tr>
                     <td>Amount:</td>
                     <td><input type="text" th:field="*{amount}" /></td>
-                    <td th:if="${#fields.hasErrors('amount')}" th:errors="*{amount}">Amount Error</td>
                 </tr>
                 <tr>
                     <td>Term (mm/dd/yyyy):</td>
                     <td><input type="text" th:field="*{term}" /></td>
-                    <td th:if="${#fields.hasErrors('term')}" th:errors="*{amount}">Term Error</td>
                 </tr>
 
 

@@ -1,8 +1,7 @@
-package io.fourfinanceit.homework.filters;
+package io.fourfinanceit.homework.Interceptors;
 
 
 import io.fourfinanceit.homework.time.Clock;
-import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
 
 import javax.servlet.ServletException;
@@ -10,7 +9,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
-@Component
 public class IntervalInterceptor extends HandlerInterceptorAdapter {
 
     private final Clock clock;
@@ -22,9 +20,13 @@ public class IntervalInterceptor extends HandlerInterceptorAdapter {
 
     @Override
     public boolean preHandle(HttpServletRequest servletRequest, HttpServletResponse servletResponse, Object handler) throws IOException, ServletException {
-        if (clock.now().getHour() < 6){
+        if (clock.now().getHour() < 6 ){
+
+            System.out.println(clock.now().getHour());
              return false;
         }
+
+
         return true;
     }
 

@@ -1,4 +1,4 @@
-package io.fourfinanceit.homework.filters;
+package io.fourfinanceit.homework.Interceptors;
 
 import io.fourfinanceit.homework.time.Clock;
 import org.junit.Test;
@@ -22,10 +22,11 @@ public class IntervalInterceptorTest {
     Object mockHandler = mock(Object.class);
 
     @Test
-    public void testInterceptCallsThatAreBefore6Am() throws Exception {
+    public void testInterceptCallsThatAreBefore6AmAndOverAmount() throws Exception {
         when(clock.now()).thenReturn(LocalTime.of(5, 59, 59));
+        when(mockRequest.getParameter("amount")).thenReturn("200.1");
 
-        assertFalse("Interval Interceptor has allowed a call before 6 a.m", intervalInterceptor.preHandle(mockRequest, mockResponse, mockHandler));
+        assertFalse("Interval Interceptor has allowed a call before 6 a.m and over 200 credits", intervalInterceptor.preHandle(mockRequest, mockResponse, mockHandler));
 
     }
 
@@ -44,4 +45,22 @@ public class IntervalInterceptorTest {
         assertTrue("Interval Interceptor has not allowed a call after 6 a.m", intervalInterceptor.preHandle(mockRequest, mockResponse, mockHandler));
 
     }
+/*
+    @Test
+    public void testInterceptorAllowsCallsThatAreBeore6AmAndUnderAmount() throws Exception {
+        when(clock.now()).thenReturn(LocalTime.of(5, 59, 59));
+        when(mockRequest.getParameter("amount")).thenReturn("199");
+
+        assertTrue("Interval Interceptor has not allowed a call before 6 a.m under 200 credits", intervalInterceptor.preHandle(mockRequest, mockResponse, mockHandler));
+
+    }
+
+    @Test
+    public void testInterceptorAllowsCallsThatAreBeore6AmAndOfExactAmount() throws Exception {
+        when(clock.now()).thenReturn(LocalTime.of(5, 59, 59));
+        when(mockRequest.getParameter("amount")).thenReturn("200");
+
+        assertTrue("Interval Interceptor has not allowed a call before 6 a.m with 200 credits", intervalInterceptor.preHandle(mockRequest, mockResponse, mockHandler));
+
+    }*/
 }
