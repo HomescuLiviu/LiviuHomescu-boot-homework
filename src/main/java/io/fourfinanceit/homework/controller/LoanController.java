@@ -27,9 +27,9 @@ public class LoanController extends WebMvcConfigurerAdapter {
         return  "loanRequest";
     }
 
-    @RequestMapping(value = "/loan", method = POST)
+    @RequestMapping(value = "/loanRequest", method = POST)
     public String addLoan(@Valid Loan loan, BindingResult bindingResult, Model model) {
         model.addAttribute("loanForm", loan);
-        return  "laonResponse";
+        return  "loanResponse";
     }
 }

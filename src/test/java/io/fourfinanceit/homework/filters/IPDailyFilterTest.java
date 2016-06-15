@@ -1,4 +1,4 @@
-package io.fourfinanceit.homework.Interceptors;
+package io.fourfinanceit.homework.filters;
 
 import org.junit.Before;
 import org.junit.Test;

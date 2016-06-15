@@ -1,4 +1,4 @@
-package io.fourfinanceit.homework.Interceptors;
+package io.fourfinanceit.homework.filters;
 
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;

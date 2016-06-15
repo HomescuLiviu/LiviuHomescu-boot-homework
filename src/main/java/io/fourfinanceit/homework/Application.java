@@ -1,8 +1,8 @@
 package io.fourfinanceit.homework;
 
-import io.fourfinanceit.homework.Interceptors.IPDailyFilter;
-import io.fourfinanceit.homework.Interceptors.IntervalInterceptor;
 import io.fourfinanceit.homework.data.entity.Loan;
+import io.fourfinanceit.homework.filters.IPDailyFilter;
+import io.fourfinanceit.homework.filters.IntervalFilter;
 import io.fourfinanceit.homework.time.Clock;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -13,12 +13,9 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.embedded.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.web.servlet.config.annotation.InterceptorRegistration;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.List;
 
 @SpringBootApplication
 public class Application implements CommandLineRunner {
@@ -50,14 +47,14 @@ public class Application implements CommandLineRunner {
 
 
 	@Bean
-	public IntervalInterceptor intervalInterceptor() {
-		return new IntervalInterceptor(clock());
+	public IntervalFilter intervalFilter() {
+		return new IntervalFilter(clock());
 	}
 
 	@Bean
-	public InterceptorRegistration intervalInterceptorRegistration() {
-		InterceptorRegistration registration = new InterceptorRegistration(intervalInterceptor());
-		registration.addPathPatterns("/loan");
+	public FilterRegistrationBean intervalFilterRegistration() {
+		FilterRegistrationBean registration = new FilterRegistrationBean(intervalFilter());
+		registration.addUrlPatterns("/loanRequest");
 		return registration;
 	}
 
@@ -69,10 +66,8 @@ public class Application implements CommandLineRunner {
 
 	@Bean
 	public FilterRegistrationBean dailyFilterRegistration() {
-		List urlPatterns = new ArrayList<>();
-		urlPatterns.add("/loan");
 		FilterRegistrationBean registration = new FilterRegistrationBean(dailyFilter());
-		registration.setUrlPatterns(urlPatterns);
+		registration.addUrlPatterns("/loanRequest");
 		return registration;
 	}
 
