@@ -1,5 +1,6 @@
 package io.fourfinanceit.homework;
 
+import io.fourfinanceit.homework.Interceptors.IPDailyFilter;
 import io.fourfinanceit.homework.Interceptors.IntervalInterceptor;
 import io.fourfinanceit.homework.data.entity.Loan;
 import io.fourfinanceit.homework.time.Clock;
@@ -9,12 +10,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.context.embedded.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistration;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.List;
 
 @SpringBootApplication
 public class Application implements CommandLineRunner {
@@ -62,5 +66,19 @@ public class Application implements CommandLineRunner {
 		return new Clock();
 	}
 
+
+	@Bean
+	public FilterRegistrationBean dailyFilterRegistration() {
+		List urlPatterns = new ArrayList<>();
+		urlPatterns.add("/loan");
+		FilterRegistrationBean registration = new FilterRegistrationBean(dailyFilter());
+		registration.setUrlPatterns(urlPatterns);
+		return registration;
+	}
+
+	@Bean
+	public IPDailyFilter dailyFilter() {
+		return new IPDailyFilter();
+	}
 
 }
