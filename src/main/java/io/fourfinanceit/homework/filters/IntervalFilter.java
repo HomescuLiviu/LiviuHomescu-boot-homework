@@ -25,15 +25,10 @@ public class IntervalFilter implements Filter {
     public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain) throws IOException, ServletException {
         HttpServletRequest request = (HttpServletRequest)servletRequest;
         HttpServletResponse response = (HttpServletResponse) servletResponse;
-        if (clock.now().getHour() < 6 ){
-
-            System.out.println(" -------------------------- "+ clock.now().getHour());
-
+        Double amount = Double.parseDouble(request.getParameter("amount"));
+        if (clock.now().getHour() < 6 && amount > 200){
+            response.sendRedirect("/maximumAmountAtNightError");
         }
-        System.out.println(" -------------------------- " + request.getParameter("amount"));
-        System.out.println(" -------------------------- " + request.getParameter("loan"));
-        System.out.println(" -------------------------- " + request.getParameter("loanForm"));
-        System.out.println(" -------------------------- " + request.getHeader("amount"));
 
         filterChain.doFilter(servletRequest, servletResponse);
     }
