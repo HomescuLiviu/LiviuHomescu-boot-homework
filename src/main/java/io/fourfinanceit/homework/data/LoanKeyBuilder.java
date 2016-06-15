@@ -1,7 +1,7 @@
 package io.fourfinanceit.homework.data;
 public class LoanKeyBuilder {
-    public static String buildKey(String firstName, String lastName, String IPaddress){
-        return firstName + "_" + lastName+ "_" + IPaddress;
+    public static String buildKey(String username, String IPaddress){
+        return username + "_" + IPaddress;
     }
 
 }

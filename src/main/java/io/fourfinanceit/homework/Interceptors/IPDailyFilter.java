@@ -41,7 +41,7 @@ public class IPDailyFilter implements Filter {
         final LoanAttempt[] result = new LoanAttempt[1];
         jdbcTemplate.query(
                 "SELECT * FROM loan_attempts WHERE loanKey = ?", new Object[] { key },
-                (rs, rowNum) -> result[0] = new LoanAttempt(rs.getString("first_name"), rs.getString("last_name"), rs.getString("ip_address"), 1));
+                (rs, rowNum) -> result[0] = new LoanAttempt(rs.getString("first_name"), rs.getString("ip_address"), 1));
 
         return result[0];
     }
@@ -72,7 +72,7 @@ public class IPDailyFilter implements Filter {
             ipAddress = request.getRemoteAddr();
         }
 
-        String loanKey = LoanKeyBuilder.buildKey( firstName, lastName, ipAddress);
+        String loanKey = LoanKeyBuilder.buildKey( userDetails.getUsername(), ipAddress);
 
         LoanAttempt attemptFromCache = getLoanAttempt(loanKey);
 
@@ -84,7 +84,7 @@ public class IPDailyFilter implements Filter {
                 entityCache.put(loanKey, attemptFromCache);
             }
         } else {
-            entityCache.put(loanKey, new LoanAttempt(firstName, lastName, ipAddress, 1));
+            entityCache.put(loanKey, new LoanAttempt(firstName, ipAddress, 1));
         }
 
         filterChain.doFilter(servletRequest, servletResponse);

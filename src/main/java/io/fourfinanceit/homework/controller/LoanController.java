@@ -24,12 +24,12 @@ public class LoanController extends WebMvcConfigurerAdapter {
     @RequestMapping(value = "/loan", method = GET)
     public String loan(Model model) {
        model.addAttribute("loanForm",new Loan());
-        return  "loan";
+        return  "loanRequest";
     }
 
     @RequestMapping(value = "/loan", method = POST)
     public String addLoan(@Valid Loan loan, BindingResult bindingResult, Model model) {
         model.addAttribute("loanForm", loan);
-        return  "loan";
+        return  "laonResponse";
     }
 }
