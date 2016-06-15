@@ -1,5 +1,6 @@
 package io.fourfinanceit.homework.Interceptors;
 
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.mock.web.MockFilterChain;
@@ -29,9 +30,16 @@ import static org.mockito.Mockito.*;
 @WithMockUser(username="admin")
 public class IPDailyFilterTest {
 
-    private final IPDailyFilter ipDailyFilter = new IPDailyFilter();
-    private final HttpServletResponse mockResponse = mock(HttpServletResponse.class);
-    private final HttpServletRequest mockRequest = mock(HttpServletRequest.class);
+    private IPDailyFilter ipDailyFilter = new IPDailyFilter();
+    private HttpServletResponse mockResponse = mock(HttpServletResponse.class);
+    private HttpServletRequest mockRequest = mock(HttpServletRequest.class);
+
+    @Before
+    public void setup(){
+        mockResponse = mock(HttpServletResponse.class);
+        mockRequest = mock(HttpServletRequest.class);
+        ipDailyFilter = new IPDailyFilter();
+    }
 
     @Test
     public void testLoaningOver3TimesFromTheSAmeIPResultsInAnErrorMessage() throws Exception {

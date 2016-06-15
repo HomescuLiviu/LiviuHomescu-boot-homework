@@ -14,7 +14,6 @@ import javax.servlet.*;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.time.format.DateTimeFormatter;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -25,9 +24,9 @@ public class IPDailyFilter implements Filter {
     @Autowired
     static JdbcTemplate jdbcTemplate;
 
-    private static ScheduledExecutorService cacheCleaner = Executors.newScheduledThreadPool(10);
+    private ScheduledExecutorService cacheCleaner = Executors.newScheduledThreadPool(10);
 
-    static LoadingCache<String, LoanAttempt> entityCache = CacheBuilder.newBuilder()
+    LoadingCache<String, LoanAttempt> entityCache = CacheBuilder.newBuilder()
             .expireAfterWrite(24, TimeUnit.HOURS)
             .build(
                     new CacheLoader<String, LoanAttempt>() {
@@ -38,8 +37,7 @@ public class IPDailyFilter implements Filter {
                     }
             );
 
-    private static LoanAttempt getLoanAttemptFromDatabase(String key) {
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+    private LoanAttempt getLoanAttemptFromDatabase(String key) {
         final LoanAttempt[] result = new LoanAttempt[1];
         jdbcTemplate.query(
                 "SELECT * FROM loan_attempts WHERE loanKey = ?", new Object[] { key },
