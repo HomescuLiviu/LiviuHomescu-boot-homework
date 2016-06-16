@@ -7,7 +7,6 @@ import io.fourfinanceit.homework.data.LoanKeyBuilder;
 import io.fourfinanceit.homework.data.entity.LoanAttempt;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.User;
 
 import javax.servlet.*;
@@ -18,11 +17,13 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
+import static org.springframework.security.core.context.SecurityContextHolder.getContext;
+
 
 public class IPDailyFilter implements Filter {
 
     @Autowired
-    static JdbcTemplate jdbcTemplate;
+    private JdbcTemplate jdbcTemplate;
 
     private ScheduledExecutorService cacheCleaner = Executors.newScheduledThreadPool(10);
 
@@ -37,11 +38,14 @@ public class IPDailyFilter implements Filter {
                     }
             );
 
+    public IPDailyFilter() {
+    }
+
     private LoanAttempt getLoanAttemptFromDatabase(String key) {
         final LoanAttempt[] result = new LoanAttempt[1];
         jdbcTemplate.query(
                 "SELECT * FROM loan_attempts WHERE loanKey = ?", new Object[] { key },
-                (rs, rowNum) -> result[0] = new LoanAttempt(rs.getString("first_name"), rs.getString("ip_address"), 1));
+                (rs, rowNum) -> result[0] = new LoanAttempt(rs.getString("user_name"), rs.getString("ip_address"), 1));
 
         return result[0];
     }
@@ -59,13 +63,9 @@ public class IPDailyFilter implements Filter {
     public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain) throws IOException, ServletException {
         HttpServletRequest request = (HttpServletRequest)servletRequest;
         HttpServletResponse response = (HttpServletResponse)servletResponse;
-        User userDetails = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        User userDetails = (User) getContext().getAuthentication().getPrincipal();
 
         userDetails.getUsername();
-        System.out.println("--------- user details :  "+  userDetails.getUsername());
-
-        String firstName= request.getParameter("first_name");
-        String lastName= request.getParameter("last_name");
         String ipAddress = request.getHeader("x-forwarded-for");
 
         if (ipAddress == null || ipAddress.isEmpty()){
@@ -84,7 +84,7 @@ public class IPDailyFilter implements Filter {
                 entityCache.put(loanKey, attemptFromCache);
             }
         } else {
-            entityCache.put(loanKey, new LoanAttempt(firstName, ipAddress, 1));
+            entityCache.put(loanKey, new LoanAttempt(userDetails.getUsername(), ipAddress, 1));
         }
 
         filterChain.doFilter(servletRequest, servletResponse);

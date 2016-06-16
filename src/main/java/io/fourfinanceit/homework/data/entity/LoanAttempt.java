@@ -2,10 +2,12 @@ package io.fourfinanceit.homework.data.entity;
 
 public class LoanAttempt {
 
+    private String userName;
     private String IPaddress;
     private int numberOfAccesses;
 
     public LoanAttempt(String userName, String IPaddress, int numberOfAccesses) {
+        this.userName = userName;
         this.IPaddress = IPaddress;
         this.numberOfAccesses = numberOfAccesses;
     }

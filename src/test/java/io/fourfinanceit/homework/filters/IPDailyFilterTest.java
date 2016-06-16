@@ -69,4 +69,16 @@ public class IPDailyFilterTest {
         verify(mockResponse, never()).sendRedirect(anyString());
 
     }
+    @Test
+    public void testLoaningLessThan3TimesFromTheSameIPWorks() throws Exception {
+        when(mockRequest.getParameter("first_name")).thenReturn("Joe");
+        when(mockRequest.getParameter("last_name")).thenReturn("Pesci");
+        when(mockRequest.getHeader("x-forwarded-for")).thenReturn("ip-address-1");
+
+        ipDailyFilter.doFilter(mockRequest, mockResponse, new MockFilterChain());
+        ipDailyFilter.doFilter(mockRequest, mockResponse, new MockFilterChain());
+
+        verify(mockResponse, never()).sendRedirect(anyString());
+
+    }
 }
