@@ -26,7 +26,7 @@ public class IntervalFilter implements Filter {
         HttpServletRequest request = (HttpServletRequest)servletRequest;
         HttpServletResponse response = (HttpServletResponse) servletResponse;
         Double amount = Double.parseDouble(request.getParameter("amount"));
-        if (clock.now().getHour() < 6 && amount > 200){
+        if ((clock.now().getHour() < 6) && (amount > 200)){
             response.sendRedirect("/maximumAmountAtNightError");
         }
 
