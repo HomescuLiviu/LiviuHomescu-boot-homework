@@ -1,7 +1,9 @@
 package io.fourfinanceit.homework.data.service;
 
 import io.fourfinanceit.homework.Application;
+import io.fourfinanceit.homework.data.LoanKeyBuilder;
 import io.fourfinanceit.homework.data.entity.Loan;
+import io.fourfinanceit.homework.data.entity.LoanAttempt;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -22,6 +24,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 import static junit.framework.TestCase.assertFalse;
+import static org.springframework.test.util.AssertionErrors.assertTrue;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes= Application.class, loader = AnnotationConfigContextLoader.class)
@@ -43,18 +46,33 @@ public class LoanServiceImplTest {
    public void setup(){
         jdbcTemplate.execute("CREATE TABLE if not exists loans(" +
                 "id SERIAL, first_name VARCHAR(255), last_name VARCHAR(255), amount NUMBER, currency VARCHAR(255) ,  term DATETIME)");
-    }
+        jdbcTemplate.execute("CREATE TABLE if not exists loan_attempts(" +
+               "id SERIAL, loanKey VARCHAR(255), user_name VARCHAR(255), ip_address VARCHAR(255), number_of_accesses NUMBER)");
+   }
 
     @Test
-    public void testAddLoan() throws Exception {
+    public void testStoreLoan() throws Exception {
 
         Loan loanToAdd = new Loan("1", "Joe", "John", 23.1, "USD", LocalDateTime.now());
-        loanService.addLoan(loanToAdd);
+        loanService.storeLoan(loanToAdd);
 
         List<Loan> savedLoans = loanService.getLoansByName(loanToAdd.getFirstName(), loanToAdd.getLastName());
 
         assertFalse("Loan service loaded too many loans", savedLoans.size() > 1);
         assertFalse("Loan service did not load any loans", savedLoans.size() == 0);
+
+    }
+
+    @Test
+    public void testStoreLoanAttempt() throws Exception {
+
+        LoanAttempt loanAttemptToAdd = new LoanAttempt("johnJ", "123.23.21.21.test", 4);
+        loanService.storeLoanAttempt(loanAttemptToAdd);
+
+        LoanAttempt savedLoanAttempt = loanService.getLoanAttemptsByKey(LoanKeyBuilder.buildKey(loanAttemptToAdd.getUserName(), loanAttemptToAdd.getIPaddress()));
+
+        assertTrue("Loan service did not store the correct loan attempt", savedLoanAttempt.equals(loanAttemptToAdd));
+        assertFalse("Loan service did not load any loans", savedLoanAttempt == null);
 
     }
 }

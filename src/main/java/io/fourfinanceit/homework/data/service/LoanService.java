@@ -1,14 +1,18 @@
 package io.fourfinanceit.homework.data.service;
 
 import io.fourfinanceit.homework.data.entity.Loan;
+import io.fourfinanceit.homework.data.entity.LoanAttempt;
 
 import java.util.List;
 
 public interface LoanService {
 
-    void addLoan(Loan loan);
+    void storeLoan(Loan loan);
 
-    public List<Loan> getLoansByName(String firstName, String lastName);
+    List<Loan> getLoansByName(String firstName, String lastName);
 
+    LoanAttempt getLoanAttemptsByKey(String loanKey);
+
+    void storeLoanAttempt(LoanAttempt loanAttempt);
 
 }

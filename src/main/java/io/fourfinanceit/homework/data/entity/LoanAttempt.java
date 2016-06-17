@@ -19,4 +19,22 @@ public class LoanAttempt {
     public void setNumberOfAccesses(int numberOfAccesses) {
         this.numberOfAccesses = numberOfAccesses;
     }
+
+    public String getUserName() {
+        return userName;
+    }
+
+    public String getIPaddress() {
+        return IPaddress;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+
+
+        return getNumberOfAccesses() == ((LoanAttempt)obj).getNumberOfAccesses() &&
+               getUserName().equals( ((LoanAttempt)obj).getUserName()) &&
+               getIPaddress().equals( ((LoanAttempt)obj).getIPaddress());
+
+    }
 }
