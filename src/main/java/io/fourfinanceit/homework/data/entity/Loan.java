@@ -1,15 +1,31 @@
 package io.fourfinanceit.homework.data.entity;
 
+import org.hibernate.validator.constraints.NotEmpty;
+import org.springframework.format.annotation.DateTimeFormat;
+
+import javax.validation.constraints.NotNull;
 import java.time.LocalDateTime;
 
 public class Loan {
 
-    String id;
-    String firstName;
-    String lastName;
-    Double amount;
-    String currency;
-    LocalDateTime term;
+    private String id;
+
+    @NotEmpty(message = "Please provide a first name for this loan")
+    private String firstName;
+
+    @NotEmpty(message = "Please provide a last name for this loan")
+    private String lastName;
+
+
+    @NotNull(message = "Please provide an amount for this loan")
+    private Double amount;
+
+    @NotNull(message = "Please provide a currency for this loan")
+    private String currency;
+
+    @NotNull(message = "Please provide a term for this loan")
+    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
+    private LocalDateTime term;
 
     public Loan() {
     }

@@ -70,7 +70,7 @@ public class IPDailyFilter implements Filter {
             response.sendRedirect("/numberOfLoansError");
         } else {
             attemptFromCache.setNumberOfAccesses( 1 + attemptFromCache.getNumberOfAccesses());
-            loanService.storeLoanAttempt(attemptFromCache);
+           // loanService.storeLoanAttempt(attemptFromCache);
             entityCache.put(LoanKeyBuilder.buildKey(attemptFromCache.getUserName(), attemptFromCache.getIPaddress()), attemptFromCache);
         }
 
