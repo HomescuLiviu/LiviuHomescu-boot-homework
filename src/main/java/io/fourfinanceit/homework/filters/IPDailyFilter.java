@@ -5,8 +5,8 @@ import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 import io.fourfinanceit.homework.data.LoanKeyBuilder;
 import io.fourfinanceit.homework.data.entity.LoanAttempt;
+import io.fourfinanceit.homework.data.service.LoanService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.security.core.userdetails.User;
 
 import javax.servlet.*;
@@ -23,7 +23,7 @@ import static org.springframework.security.core.context.SecurityContextHolder.ge
 public class IPDailyFilter implements Filter {
 
     @Autowired
-    private JdbcTemplate jdbcTemplate;
+    private LoanService loanService;
 
     private ScheduledExecutorService cacheCleaner = Executors.newScheduledThreadPool(10);
 
@@ -33,21 +33,12 @@ public class IPDailyFilter implements Filter {
                     new CacheLoader<String, LoanAttempt>() {
                         @Override
                         public LoanAttempt load(String key) throws Exception {
-                            return getLoanAttemptFromDatabase(key);
+                            return loanService.getLoanAttemptsByKey(key);
                         }
                     }
             );
 
     public IPDailyFilter() {
-    }
-
-    private LoanAttempt getLoanAttemptFromDatabase(String key) {
-        final LoanAttempt[] result = new LoanAttempt[1];
-        jdbcTemplate.query(
-                "SELECT * FROM loan_attempts WHERE loanKey = ?", new Object[] { key },
-                (rs, rowNum) -> result[0] = new LoanAttempt(rs.getString("user_name"), rs.getString("ip_address"), 1));
-
-        return result[0];
     }
 
     {
@@ -65,7 +56,6 @@ public class IPDailyFilter implements Filter {
         HttpServletResponse response = (HttpServletResponse)servletResponse;
         User userDetails = (User) getContext().getAuthentication().getPrincipal();
 
-        userDetails.getUsername();
         String ipAddress = request.getHeader("x-forwarded-for");
 
         if (ipAddress == null || ipAddress.isEmpty()){
@@ -74,24 +64,26 @@ public class IPDailyFilter implements Filter {
 
         String loanKey = LoanKeyBuilder.buildKey( userDetails.getUsername(), ipAddress);
 
-        LoanAttempt attemptFromCache = getLoanAttempt(loanKey);
+        LoanAttempt attemptFromCache = getLoanAttempt(loanKey, userDetails.getUsername(), ipAddress);
 
-        if (attemptFromCache != null ){
-            if (attemptFromCache.getNumberOfAccesses() > 2){
-                response.sendRedirect("/numberOfLoansError");
-            } else {
-                attemptFromCache.setNumberOfAccesses( 1 + attemptFromCache.getNumberOfAccesses());
-                entityCache.put(loanKey, attemptFromCache);
-            }
+        if (attemptFromCache.getNumberOfAccesses() > 2){
+            response.sendRedirect("/numberOfLoansError");
         } else {
-            entityCache.put(loanKey, new LoanAttempt(userDetails.getUsername(), ipAddress, 1));
+            attemptFromCache.setNumberOfAccesses( 1 + attemptFromCache.getNumberOfAccesses());
+            loanService.storeLoanAttempt(attemptFromCache);
+            entityCache.put(LoanKeyBuilder.buildKey(attemptFromCache.getUserName(), attemptFromCache.getIPaddress()), attemptFromCache);
         }
 
         filterChain.doFilter(servletRequest, servletResponse);
     }
 
-    public LoanAttempt getLoanAttempt(String loanKey) {
-        return entityCache.getIfPresent(loanKey);
+    public LoanAttempt getLoanAttempt(String loanKey, String userDetails, String ipAddress) {
+        LoanAttempt attemptFromCache = entityCache.getIfPresent(loanKey);
+
+        if (attemptFromCache == null){
+            attemptFromCache = new LoanAttempt(userDetails, ipAddress, 0);
+        }
+        return attemptFromCache;
     }
 
     @Override

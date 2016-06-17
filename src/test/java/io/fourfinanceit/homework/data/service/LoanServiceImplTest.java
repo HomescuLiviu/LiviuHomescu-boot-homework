@@ -75,4 +75,20 @@ public class LoanServiceImplTest {
         assertFalse("Loan service did not load any loans", savedLoanAttempt == null);
 
     }
+
+    @Test
+    public void testCanupdateLoanAttempt() throws Exception {
+
+        LoanAttempt loanAttemptToAdd = new LoanAttempt("johnJ", "123.23.21.21.test", 1);
+        loanService.storeLoanAttempt(loanAttemptToAdd);
+
+        loanAttemptToAdd.setNumberOfAccesses(2);
+        loanService.storeLoanAttempt(loanAttemptToAdd);
+
+        LoanAttempt savedLoanAttempt = loanService.getLoanAttemptsByKey(LoanKeyBuilder.buildKey(loanAttemptToAdd.getUserName(), loanAttemptToAdd.getIPaddress()));
+
+        assertTrue("Loan service did not update the loan attempt properly", savedLoanAttempt.equals(loanAttemptToAdd));
+        assertFalse("Loan service did not load any loans", savedLoanAttempt == null);
+
+    }
 }
