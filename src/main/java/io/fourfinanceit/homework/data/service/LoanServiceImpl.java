@@ -34,7 +34,7 @@ public class LoanServiceImpl implements LoanService {
                     new CacheLoader<String, LoanAttempt>() {
                         @Override
                         public LoanAttempt load(String key) throws Exception {
-                            return getLoanAttemptsFromDatabaseByKey(key);
+                            return null;
                         }
                     }
             );
@@ -65,23 +65,13 @@ public class LoanServiceImpl implements LoanService {
         return entityCache.getIfPresent(loanKey);
     }
 
-    public LoanAttempt getLoanAttemptsFromDatabaseByKey(String loanKey){
-        final LoanAttempt[] result = new LoanAttempt[1];
-        jdbcTemplate.query(
-                "SELECT * FROM loan_attempts WHERE loanKey = ?", new Object[] { loanKey },
-                (rs, rowNum) -> result[0] = new LoanAttempt(rs.getString("user_name"), rs.getString("ip_address"), Integer.parseInt(rs.getString("number_of_accesses"))));
-
-        return result[0];
-    }
-
     public void storeLoanAttempt(LoanAttempt loanAttempt) {
 
-        addOrUpdateLoanAttemptInDatabase(loanAttempt);
         LoanAttempt attemptFromCache = getLoanAttempt(loanAttempt);
 
         if (attemptFromCache == null){
             loanAttempt.setNumberOfAccesses(1);
-            entityCache.put(LoanKeyBuilder.buildKey(attemptFromCache.getUserName(), attemptFromCache.getIPaddress()), loanAttempt);
+            entityCache.put(LoanKeyBuilder.buildKey(loanAttempt.getUserName(), loanAttempt.getIPaddress()), loanAttempt);
         } else {
             attemptFromCache.setNumberOfAccesses( 1 + attemptFromCache.getNumberOfAccesses());
             entityCache.put(LoanKeyBuilder.buildKey(attemptFromCache.getUserName(), attemptFromCache.getIPaddress()), attemptFromCache);
@@ -90,30 +80,6 @@ public class LoanServiceImpl implements LoanService {
 
     private LoanAttempt getLoanAttempt(LoanAttempt loanAttempt) {
         return entityCache.getIfPresent(LoanKeyBuilder.buildKey(loanAttempt.getUserName(), loanAttempt.getIPaddress()));
-    }
-
-    private void addOrUpdateLoanAttemptInDatabase(LoanAttempt loanAttempt) {
-        LoanAttempt attemptFromDatabse = getLoanAttemptsByKey(LoanKeyBuilder.buildKey(loanAttempt.getUserName(), loanAttempt.getIPaddress()));
-
-        if (attemptFromDatabse == null){
-            addLoanAttempt(loanAttempt);
-        } else {
-            updateLoanAttempt(loanAttempt);
-        }
-    }
-
-    private void addLoanAttempt(LoanAttempt loanAttempt) {
-        jdbcTemplate.execute(
-                String.format("insert into loan_attempts (loanKey, user_name, ip_address, number_of_accesses) values ('%s', '%s', '%s', '%s');",
-                        LoanKeyBuilder.buildKey(loanAttempt.getUserName(), loanAttempt.getIPaddress()),
-                        loanAttempt.getUserName(), loanAttempt.getIPaddress(), loanAttempt.getNumberOfAccesses()));
-    }
-
-    private void updateLoanAttempt(LoanAttempt loanAttempt) {
-        jdbcTemplate.execute(
-                String.format("update loan_attempts set user_name='%s', ip_address='%s', number_of_accesses='%s' where loanKey='%s';",
-                        loanAttempt.getUserName(), loanAttempt.getIPaddress(), loanAttempt.getNumberOfAccesses(),
-                        LoanKeyBuilder.buildKey(loanAttempt.getUserName(),loanAttempt.getIPaddress())));
     }
 
 }

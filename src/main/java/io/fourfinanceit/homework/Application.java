@@ -34,8 +34,6 @@ public class Application implements CommandLineRunner {
 		jdbcTemplate.execute("CREATE TABLE if not exists loans(" +
 				"id SERIAL, first_name VARCHAR(255), last_name VARCHAR(255), amount NUMBER, currency VARCHAR(255) ,  term DATETIME)");
 
-		jdbcTemplate.execute("CREATE TABLE if not exists loan_attempts(" +
-				"id SERIAL, loanKey VARCHAR(255), user_name VARCHAR(255), ip_address VARCHAR(255), number_of_accesses NUMBER)");
 	}
 
 
