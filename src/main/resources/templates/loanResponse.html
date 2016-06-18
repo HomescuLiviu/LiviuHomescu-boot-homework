@@ -4,9 +4,17 @@
 <head>
     <title>Loan Response Form</title>
 </head>
+
+
 <body>
     <div align="center">
-        <form action="#" th:action="@{/loan}" th:object="${loanForm}" method="post">
+        <br/>
+        <br/>
+        <p th:text="'You have booed a loan :' + ${loanId}"></p>
+        <br/>
+        <br/>
+
+    <form action="#" th:action="@{/loan}" th:object="${loanForm}" method="post">
             <table>
                 <tr>
                     <td>First Name:</td>
@@ -26,7 +34,7 @@
                 </tr>
                 <tr>
                     <td>Term (mm/dd/yyyy):</td>
-                    <td><input type="text" th:field="*{term}" /></td>
+                    <td><input type="text" th:field="*{term}"/></td>
                 </tr>
             </table>
         </form>

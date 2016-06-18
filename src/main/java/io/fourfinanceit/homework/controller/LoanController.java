@@ -15,6 +15,8 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 
+import java.util.UUID;
+
 import static org.springframework.security.core.context.SecurityContextHolder.getContext;
 import static org.springframework.web.bind.annotation.RequestMethod.GET;
 import static org.springframework.web.bind.annotation.RequestMethod.POST;
@@ -36,12 +38,15 @@ public class LoanController extends WebMvcConfigurerAdapter {
     public String addLoan(HttpServletRequest request, @Valid Loan loan, BindingResult bindingResult, Model model) {
         User userDetails = (User) getContext().getAuthentication().getPrincipal();
         String ipAddress = getIPAddressFromRequest(request);
-        model.addAttribute("loanForm", loan);
+
         if (bindingResult.hasErrors()) {
             return "loanRequest";
         }
+        loan.setId(UUID.randomUUID().toString());
         loanService.storeLoan(loan);
         storeLoanAttempt(userDetails, ipAddress);
+        model.addAttribute("loanId", loan.getId() );
+        model.addAttribute("loanForm", loan);
 
         return  "loanResponse";
     }
