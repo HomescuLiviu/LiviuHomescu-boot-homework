@@ -62,7 +62,7 @@ public class IPDailyFilterTest {
     @Test
     public void testLoaning3TimesFromTheSameIPWorks() throws Exception {
 
-        LoanAttempt testLoanAttempt = new LoanAttempt("Joe", "TestIP", 3);
+        LoanAttempt testLoanAttempt = new LoanAttempt("Joe", "TestIP", 2);
 
         when(loanService.getLoanAttemptsByKey(anyString())).thenReturn(testLoanAttempt);
 
@@ -74,7 +74,7 @@ public class IPDailyFilterTest {
     @Test
     public void testLoaningLessThan3TimesFromTheSameIPWorks() throws Exception {
 
-        LoanAttempt testLoanAttempt = new LoanAttempt("Joe", "TestIP", 2);
+        LoanAttempt testLoanAttempt = new LoanAttempt("Joe", "TestIP", 1);
 
         when(loanService.getLoanAttemptsByKey(anyString())).thenReturn(testLoanAttempt);
 

@@ -50,6 +50,8 @@ public class LoanServiceImpl implements LoanService {
         jdbcTemplate.execute(
                 String.format("insert into loans (first_name, last_name, amount, term) values ('%s', '%s', '%s', '%s');", loan.getFirstName(), loan.getLastName(), loan.getAmount(), dateString)
          );
+
+
     }
 
     public List<Loan> getLoansByName(String firstName, String lastName){

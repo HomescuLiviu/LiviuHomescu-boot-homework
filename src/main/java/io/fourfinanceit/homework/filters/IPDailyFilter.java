@@ -3,7 +3,6 @@ package io.fourfinanceit.homework.filters;
 import io.fourfinanceit.homework.data.LoanKeyBuilder;
 import io.fourfinanceit.homework.data.entity.LoanAttempt;
 import io.fourfinanceit.homework.data.service.LoanService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.User;
 
 import javax.servlet.*;
@@ -16,7 +15,6 @@ import static org.springframework.security.core.context.SecurityContextHolder.ge
 
 public class IPDailyFilter implements Filter {
 
-    @Autowired
     private LoanService loanService;
 
     public IPDailyFilter(LoanService loanService) {
@@ -35,28 +33,36 @@ public class IPDailyFilter implements Filter {
         HttpServletResponse response = (HttpServletResponse)servletResponse;
         User userDetails = (User) getContext().getAuthentication().getPrincipal();
 
-        String ipAddress = request.getHeader("x-forwarded-for");
-
-        if (ipAddress == null || ipAddress.isEmpty()){
-            ipAddress = request.getRemoteAddr();
-        }
+        String ipAddress = getIpAddressFromRequest(request);
 
         String loanKey = LoanKeyBuilder.buildKey( userDetails.getUsername(), ipAddress);
 
         LoanAttempt attemptFromCache = getLoanAttempt(loanKey, userDetails.getUsername(), ipAddress);
 
-        if (attemptFromCache.getNumberOfAccesses() > 3){
+        if (attemptFromCache.getNumberOfAccesses() > 2){
+            System.out.println("------------ numberOfLoansError ");
             response.sendRedirect("/numberOfLoansError");
         }
 
         filterChain.doFilter(servletRequest, servletResponse);
     }
 
+    private String getIpAddressFromRequest(HttpServletRequest request) {
+        String ipAddress = request.getHeader("x-forwarded-for");
+
+        if (ipAddress == null || ipAddress.isEmpty()){
+            ipAddress = request.getRemoteAddr();
+        }
+        return ipAddress;
+    }
+
     public LoanAttempt getLoanAttempt(String loanKey, String userDetails, String ipAddress) {
         LoanAttempt attemptFromCache = loanService.getLoanAttemptsByKey(loanKey);
 
+        System.out.println("------------- Filter key :" + loanKey);
+
         if (attemptFromCache == null){
-            attemptFromCache = new LoanAttempt(userDetails, ipAddress, 0);
+            attemptFromCache = new LoanAttempt(userDetails, ipAddress, 1);
         }
         return attemptFromCache;
     }
