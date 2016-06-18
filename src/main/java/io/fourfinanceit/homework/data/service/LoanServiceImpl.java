@@ -1,5 +1,8 @@
 package io.fourfinanceit.homework.data.service;
 
+import com.google.common.cache.CacheBuilder;
+import com.google.common.cache.CacheLoader;
+import com.google.common.cache.LoadingCache;
 import io.fourfinanceit.homework.data.LoanKeyBuilder;
 import io.fourfinanceit.homework.data.entity.Loan;
 import io.fourfinanceit.homework.data.entity.LoanAttempt;
@@ -10,6 +13,9 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 @Service
 public class LoanServiceImpl implements LoanService {
@@ -19,6 +25,25 @@ public class LoanServiceImpl implements LoanService {
 
     @Autowired
     private JdbcTemplate jdbcTemplate;
+
+    private ScheduledExecutorService cacheCleaner = Executors.newScheduledThreadPool(10);
+
+    LoadingCache<String, LoanAttempt> entityCache = CacheBuilder.newBuilder()
+            .expireAfterWrite(24, TimeUnit.HOURS)
+            .build(
+                    new CacheLoader<String, LoanAttempt>() {
+                        @Override
+                        public LoanAttempt load(String key) throws Exception {
+                            return getLoanAttemptsFromDatabaseByKey(key);
+                        }
+                    }
+            );
+
+    {
+        cacheCleaner.scheduleAtFixedRate( () -> entityCache.cleanUp(), 0, 3, TimeUnit.HOURS );
+    }
+
+
 
     public void storeLoan(Loan loan) {
         String dateString = formatter.format(loan.getTerm());
@@ -37,6 +62,10 @@ public class LoanServiceImpl implements LoanService {
     }
 
     public LoanAttempt getLoanAttemptsByKey(String loanKey){
+        return entityCache.getIfPresent(loanKey);
+    }
+
+    public LoanAttempt getLoanAttemptsFromDatabaseByKey(String loanKey){
         final LoanAttempt[] result = new LoanAttempt[1];
         jdbcTemplate.query(
                 "SELECT * FROM loan_attempts WHERE loanKey = ?", new Object[] { loanKey },
@@ -47,6 +76,23 @@ public class LoanServiceImpl implements LoanService {
 
     public void storeLoanAttempt(LoanAttempt loanAttempt) {
 
+        addOrUpdateLoanAttemptInDatabase(loanAttempt);
+        LoanAttempt attemptFromCache = getLoanAttempt(loanAttempt);
+
+        if (attemptFromCache == null){
+            loanAttempt.setNumberOfAccesses(1);
+            entityCache.put(LoanKeyBuilder.buildKey(attemptFromCache.getUserName(), attemptFromCache.getIPaddress()), loanAttempt);
+        } else {
+            attemptFromCache.setNumberOfAccesses( 1 + attemptFromCache.getNumberOfAccesses());
+            entityCache.put(LoanKeyBuilder.buildKey(attemptFromCache.getUserName(), attemptFromCache.getIPaddress()), attemptFromCache);
+        }
+    }
+
+    private LoanAttempt getLoanAttempt(LoanAttempt loanAttempt) {
+        return entityCache.getIfPresent(LoanKeyBuilder.buildKey(loanAttempt.getUserName(), loanAttempt.getIPaddress()));
+    }
+
+    private void addOrUpdateLoanAttemptInDatabase(LoanAttempt loanAttempt) {
         LoanAttempt attemptFromDatabse = getLoanAttemptsByKey(LoanKeyBuilder.buildKey(loanAttempt.getUserName(), loanAttempt.getIPaddress()));
 
         if (attemptFromDatabse == null){
@@ -54,7 +100,6 @@ public class LoanServiceImpl implements LoanService {
         } else {
             updateLoanAttempt(loanAttempt);
         }
-
     }
 
     private void addLoanAttempt(LoanAttempt loanAttempt) {

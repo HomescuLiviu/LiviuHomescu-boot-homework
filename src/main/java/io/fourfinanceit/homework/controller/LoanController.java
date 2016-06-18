@@ -23,7 +23,7 @@ public class LoanController extends WebMvcConfigurerAdapter {
 
     @RequestMapping(value = "/loan", method = GET)
     public String loan(Model model) {
-       model.addAttribute("loanForm",new Loan());
+        model.addAttribute("loanForm",new Loan());
         return  "loanRequest";
     }
 

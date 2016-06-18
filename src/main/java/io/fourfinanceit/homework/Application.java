@@ -66,7 +66,7 @@ public class Application implements CommandLineRunner {
 
 	@Bean
 	public IPDailyFilter dailyFilter() {
-		return new IPDailyFilter();
+		return new IPDailyFilter(loanService());
 	}
 
 

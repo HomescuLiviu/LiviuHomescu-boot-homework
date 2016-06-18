@@ -1,8 +1,5 @@
 package io.fourfinanceit.homework.filters;
 
-import com.google.common.cache.CacheBuilder;
-import com.google.common.cache.CacheLoader;
-import com.google.common.cache.LoadingCache;
 import io.fourfinanceit.homework.data.LoanKeyBuilder;
 import io.fourfinanceit.homework.data.entity.LoanAttempt;
 import io.fourfinanceit.homework.data.service.LoanService;
@@ -13,9 +10,6 @@ import javax.servlet.*;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
 
 import static org.springframework.security.core.context.SecurityContextHolder.getContext;
 
@@ -25,25 +19,10 @@ public class IPDailyFilter implements Filter {
     @Autowired
     private LoanService loanService;
 
-    private ScheduledExecutorService cacheCleaner = Executors.newScheduledThreadPool(10);
-
-    LoadingCache<String, LoanAttempt> entityCache = CacheBuilder.newBuilder()
-            .expireAfterWrite(24, TimeUnit.HOURS)
-            .build(
-                    new CacheLoader<String, LoanAttempt>() {
-                        @Override
-                        public LoanAttempt load(String key) throws Exception {
-                            return loanService.getLoanAttemptsByKey(key);
-                        }
-                    }
-            );
-
-    public IPDailyFilter() {
+    public IPDailyFilter(LoanService loanService) {
+        this.loanService = loanService;
     }
 
-    {
-        cacheCleaner.scheduleAtFixedRate( () -> entityCache.cleanUp(), 0, 3, TimeUnit.HOURS );
-    }
 
     @Override
     public void init(FilterConfig filterConfig) throws ServletException {
@@ -66,19 +45,15 @@ public class IPDailyFilter implements Filter {
 
         LoanAttempt attemptFromCache = getLoanAttempt(loanKey, userDetails.getUsername(), ipAddress);
 
-        if (attemptFromCache.getNumberOfAccesses() > 2){
+        if (attemptFromCache.getNumberOfAccesses() > 3){
             response.sendRedirect("/numberOfLoansError");
-        } else {
-            attemptFromCache.setNumberOfAccesses( 1 + attemptFromCache.getNumberOfAccesses());
-           // loanService.storeLoanAttempt(attemptFromCache);
-            entityCache.put(LoanKeyBuilder.buildKey(attemptFromCache.getUserName(), attemptFromCache.getIPaddress()), attemptFromCache);
         }
 
         filterChain.doFilter(servletRequest, servletResponse);
     }
 
     public LoanAttempt getLoanAttempt(String loanKey, String userDetails, String ipAddress) {
-        LoanAttempt attemptFromCache = entityCache.getIfPresent(loanKey);
+        LoanAttempt attemptFromCache = loanService.getLoanAttemptsByKey(loanKey);
 
         if (attemptFromCache == null){
             attemptFromCache = new LoanAttempt(userDetails, ipAddress, 0);
